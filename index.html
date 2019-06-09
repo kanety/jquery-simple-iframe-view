@@ -1,0 +1,31 @@
+<html>
+<head>
+  <meta charset="UTF-8">
+  <script src="node_modules/jquery/dist/jquery.min.js"></script>
+  <script src="dist/jquery-simple-iframe-view.js"></script>
+</head>
+<body>
+  <h1>Basic Usage</h1>
+  <div id="basic">
+    <p><a href="iframe1.html">iframe1.html</a></p>
+    <p><a href="iframe2.html">iframe2.html</a></p>
+    <p><a href="iframe3.html">iframe3.html</a></p>
+  </div>
+  <div id="basic_container"></div>
+  <div id="message"></div>
+  <script>
+  $('#basic').simpleIframeView({
+    container: '#basic_container',
+    maxCache: 2
+  }).on('iframe:show', function(e, $iframe) {
+    $('#message').append('<div>show: ' + $iframe.attr('src') + '</div>');
+  }).on('iframe:hide', function(e, $iframe) {
+    $('#message').append('<div>hide: ' + $iframe.attr('src') + '</div>');
+  }).on('iframe:loaded', function(e, $iframe) {
+    $('#message').append('<div>loaded: ' + $iframe.attr('src') + '</div>');
+  }).on('iframe:resized', function(e, $iframe) {
+    $('#message').append('<div>resized: ' + $iframe.attr('src') + '</div>');
+  });
+  </script>
+</body>
+</html>
