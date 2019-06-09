@@ -14,6 +14,8 @@ Install from npm:
 
 ## Usage
 
+Build html as follows:
+
 ```html
 <div id="index">
   <p><a href="iframe1.html">iframe1.html</a></p>
@@ -23,17 +25,31 @@ Install from npm:
 <div id="iframes"></div>
 ```
 
+Then run:
+
 ```javascript
-$('#iframes').simpleIframeView({
-  index: '#index',
-  links: 'a[href]'
+$('#index').simpleIframeView({
+  container: '#iframes'
 });
 ```
 
 ### Options
 
+URL selector options:
+
 ```javascript
-$('#iframes').simpleIframeView({
+$('#index').simpleIframeView({
+  urlSelector: 'a',
+  urlAttribute: 'href',
+  container: '#iframes'
+});
+```
+
+Iframe options:
+
+```javascript
+$('#index').simpleIframeView({
+  container: '#iframes'
   template: '<iframe scrolling="no">',
   marginHeight: 0,
   maxCache: 100,
