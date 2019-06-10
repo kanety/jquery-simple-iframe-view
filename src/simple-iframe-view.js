@@ -19,6 +19,9 @@ export default class SimpleIframeView {
     this.$index = $(element);
     this.$container = $(this.options.container);
 
+    this.uid = new Date().getTime() + Math.random();
+    this.namespace = `${NAMESPACE}-${this.uid}`;
+
     this.$current = null;
     this.cached = [];
 
@@ -26,15 +29,12 @@ export default class SimpleIframeView {
   }
 
   init() {
-    this.$index.addClass(NAMESPACE);
-    this.$container.addClass(NAMESPACE);
-
     this.unbind();
     this.bind();
   }
 
   bind() {
-    this.$index.on('click.${NAMESPACE}', this.options.urlSelector, (e) => {
+    this.$index.on(`click.${this.namespace}`, this.options.urlSelector, (e) => {
       let url = $(e.currentTarget).attr(this.options.urlAttribute);
       if (url) {
         this.showUrl(url);
@@ -44,7 +44,7 @@ export default class SimpleIframeView {
   }
 
   unbind() {
-    this.$index.off(`.${NAMESPACE}`);
+    this.$index.off(`.${this.namespace}`);
   }
 
   showUrl(url) {
@@ -55,9 +55,15 @@ export default class SimpleIframeView {
     let $iframe = this.findIframe(url);
     if ($iframe.length == 0) {
       $iframe = this.addIframe(url);
+      this.showAndCache($iframe);
+    } else {
+      this.showAndCache($iframe);
+      if (this.options.autoResize) {
+        this.resize($iframe);
+      }
     }
-    this.show($iframe);
-    this.cache($iframe);
+
+    return $iframe;
   }
 
   findIframe(url) {
@@ -75,6 +81,11 @@ export default class SimpleIframeView {
 
     this.$container.append($iframe);
     return $iframe;
+  }
+
+  showAndCache($iframe) {
+    this.show($iframe);
+    this.cache($iframe);
   }
 
   show($iframe) {
@@ -98,12 +109,14 @@ export default class SimpleIframeView {
   }
 
   resize($iframe) {
-    let childWindow = $iframe[0].contentWindow;
-    if (childWindow) {
-      let height = childWindow.document.body.scrollHeight + this.options.marginHeight;
-      $iframe.css('height', `${height}px`);
-      this.$index.trigger('iframe:resized', [$iframe])
-    }
+    let iframeWindow = $iframe[0].contentWindow;
+    if (!iframeWindow) return;
+    let iframeDoc = iframeWindow.document;
+    if (!iframeDoc || iframeDoc.readyState != 'complete') return;
+
+    let height = iframeDoc.body.scrollHeight + this.options.marginHeight;
+    $iframe.height(height);
+    this.$index.trigger('iframe:resized', [$iframe])
   }
 
   cache($iframe) {
