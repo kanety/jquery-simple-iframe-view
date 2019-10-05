@@ -16,7 +16,7 @@ module.exports = function(config) {
     // list of files / patterns to load in the browser
     files: [
       'node_modules/jquery/dist/jquery.min.js',
-      'dist/*.js',
+      'src/*.js',
       'test/**/*spec.js',
       'index.html', {
         pattern: 'iframe*.html',
@@ -27,6 +27,7 @@ module.exports = function(config) {
 
 
    proxies: {
+     '/dist/': '/base/dist/',
      "/iframe1.html": "/base/iframe1.html",
      "/iframe2.html": "/base/iframe2.html",
      "/iframe3.html": "/base/iframe3.html"
@@ -41,20 +42,39 @@ module.exports = function(config) {
     // preprocess matching files before serving them to the browser
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
     preprocessors: {
-        'src/*.js' : ['coverage'],
-        'index.html': ['html2js']
+      'src/*.js': ['webpack', 'sourcemap'],
+      'test/*spec.js': ['webpack', 'sourcemap'],
+      'index.html': ['html2js']
     },
+
+    webpack: (function() {
+      var webpack = require('./webpack.config');
+      webpack.mode = 'development';
+      webpack.module.rules.push({
+        test: /\.js$/,
+        include: /src/,
+        exclude: /node_modules/,
+        enforce: 'post',
+        use: {
+          loader: 'istanbul-instrumenter-loader',
+          options: { esModules: true }
+        }
+      });
+      webpack.devtool = 'inline-source-map';
+      return webpack;
+    })(),
 
 
     // test results reporter to use
     // possible values: 'dots', 'progress'
     // available reporters: https://npmjs.org/browse/keyword/karma-reporter
-    reporters: ['progress', 'coverage'],
+    reporters: ['progress', 'coverage-istanbul'],
 
-    coverageReporter: {
-        type: 'html',
-        dir: 'coverage/'
+    coverageIstanbulReporter: {
+      reports: ['html', 'lcovonly'],
+      dir: __dirname + '/coverage'
     },
+
 
     // web server port
     port: 9876,
